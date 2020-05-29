@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+  body {
+    background-color: black;
+    color: white;
+  }
+  p {
+    text-align: center;
+    font-size: 20px;
+  }
+  button {
+
+  }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Submit XRay Image</title>
+</head>
+<body>
+  <h1>Submit XRay Image</h1>
+    <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <center><button type="submit">Upload</button></center>
+    </form>
+</body>
+</html>
