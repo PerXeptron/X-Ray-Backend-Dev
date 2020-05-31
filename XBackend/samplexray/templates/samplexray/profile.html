@@ -1,0 +1,20 @@
+{% extends 'samplexray/base.html' %}
+{% block content %}
+<head>
+  <a class="btn btn-primary" href="{% url 'samplexray:logout' %}">Logout</a>
+  <a class='btn btn-primary' href="{% url 'samplexray:upload' %}">Upload</a>
+  <h1>Your profile</h1>
+  <h3>Welcome back ! {{ user.username }}</h3><br>
+  <h2>Your Recent XRays</h2>
+    <!--<table>
+      <col span = "2"/>
+      <ul>
+        {% for blog in blogs %}
+          <tr>
+            <td><li><a href="{% url 'blog:personalblog' user.id blog.id %}">{{ blog.blog_title }}</a></td> <td>Publication date : {{ blog.pub_date.date }}</td></li>
+          </tr>
+        {% endfor %}
+      </ul>
+    </table>-->
+</head>
+{% endblock %}

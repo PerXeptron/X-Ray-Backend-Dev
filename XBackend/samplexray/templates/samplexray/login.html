@@ -1,0 +1,22 @@
+{% extends 'samplexray/base.html' %}
+{% block content %}
+<style>
+  input[type=text] {
+      font-size: 16px;
+  }
+</style>
+<head>  
+  <meta charset="UTF-8">
+  <a class='btn btn-primary' href="{% url 'samplexray:signup' %}">SignUp</a>
+  <a class='btn btn-primary' href="{% url 'samplexray:anonupload' %}">Upload</a>
+  <h1>Login</h1>
+  <form class="site-form" action="{% url 'samplexray:login' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    {% if request.GET.next %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% endif %}
+    <input type="submit" value="Login">
+  </form>
+</head>
+{% endblock content %}

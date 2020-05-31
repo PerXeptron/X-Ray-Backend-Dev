@@ -1,29 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<style>
-  body {
-    background-color: black;
-    color: white;
-  }
-  p {
-    text-align: center;
-    font-size: 20px;
-  }
-  button {
-
-  }
-</style>
+{% extends 'samplexray/base.html' %}
+{% block content %}
+  <style>
+    .btn-primary{
+      padding: 3px 15px;
+      border: 1px solid green;
+    }
+  </style>
 <head>
     <meta charset="UTF-8">
-    <title>Submit XRay Image</title>
-</head>
-<body>
-  <h1>Submit XRay Image</h1>
-    <form method = "post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <center><button type="submit">Upload</button></center>
-    </form>
-</body>
-</html>
+    <title>PerXeptron CheXRay</title>
+    <a class='btn btn-primary' href="{% url 'samplexray:login' %}">Login</a>
+    <a class='btn btn-primary' href="{% url 'samplexray:signup' %}">SignUp</a>
+    <a class='btn btn-primary' href="{% url 'samplexray:anonupload' %}">Upload</a>
+    <h1>Welcome to The PerXeptron CheXRay !</h1>
+    <h4>A lightweight, fast deep learning enabled Chest X-Ray Anomaly detection application developed by PerXeptron</h4><br>
+<head>
+{% endblock %}

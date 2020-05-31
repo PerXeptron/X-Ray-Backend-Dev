@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 """
@@ -10,7 +11,7 @@ class XRaySample(models.Model):
 	title = models.CharField(max_length = 50, null = False, blank = False)
 	image = models.ImageField(upload_to='images/', null = False, blank = False)
 	date_posted = models.DateTimeField(auto_now_add = True, verbose_name = "date posted")
-	slug = models.SlugField(blank = True, unique = True)
+	userperson = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
 
 	def __str__(self):
 		return self.title
