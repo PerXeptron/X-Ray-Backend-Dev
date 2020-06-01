@@ -6,10 +6,15 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.conf import settings
+
 # Create your views here.
 
 from .forms import XrayForm
 from .models import XRaySample
+from .dictionary import Dictionary
 
 from keras.models import load_model
 from keras.preprocessing import image
@@ -18,6 +23,10 @@ import tensorflow as tf
 import h5py
 import numpy as np
 import os
+
+CURRENT_PATH = os.getcwd()
+MODEL_PATH = os.path.join(CURRENT_PATH + "/Gestures_CNN_4_fine_tuned_mulltilabel.h5")
+ANOMALY_INDICES = {0 : 'cool', 1 : 'fist', 2 : 'ok', 3 : 'stop', 4 : 'yo'}
 
 def index(request):
     return render(request, 'samplexray/index.html')
@@ -53,6 +62,19 @@ def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('samplexray:index'))
 
+def return_prediction(file_path):
+	tb._SYMBOLIC_SCOPE.value = True
+	xray_classifier_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+
+	loaded_image = image.load_img(file_path, target_size=(224, 224), color_mode='rgb')
+	img_tensor = image.img_to_array(loaded_image)[:,:,:3]
+	img_tensor = np.expand_dims(img_tensor, axis=0)
+	img_tensor /= 255.
+	prediction = xray_classifier_model.predict(img_tensor)
+
+	return prediction
+
+
 @login_required(login_url='/samplexray/login/')
 def profile(request, user_id):
     if(user_id == request.user.id):
@@ -77,32 +99,29 @@ def xrayupload(request, user_id):
 				xrayDate_posted = timezone.now()
 				newxray = XRaySample(title = xrayTitle, date_posted = xrayDate_posted, userperson = xrayUser, image = xrayImage)
 				newxray.save()
-				return HttpResponseRedirect(reverse('samplexray:predict', args=(newxray.id,)))
+				return HttpResponseRedirect(reverse('samplexray:predict', args=(user.id, newxray.id,)))
 		else:
 			form = XrayForm()
 
-		return render(request, 'samplexray/upload.html', {'form' : form})
+		return render(request, 'samplexray/upload.html', {'form' : form, 'user' : user})
 
 def xrayanonupload(request):
-	"""
-		AnonymousUser is User 1
-	"""
-	#anonuser = get_object_or_404(User, pk=1)
-
 	if request.method == 'POST':
 		form = XrayForm(request.POST, request.FILES)
-		anonuser = get_object_or_404(User, pk=1)
 		if form.is_valid():
 			xrayTitle = form.cleaned_data['title']
 			xrayImage = form.cleaned_data['image']
-			xrayUser = anonuser
-			xrayDate_posted = timezone.now()
-			newxray = XRaySample(title = xrayTitle, date_posted = xrayDate_posted, userperson = xrayUser, image = xrayImage)
-			newxray.save()
-			return HttpResponseRedirect(reverse('samplexray:anonpredict', args=(newxray.id,)))
+			
+			path = default_storage.save(os.path.join('images/' + xrayTitle + '.jpg'), ContentFile(xrayImage.read()))
+			display_path = os.path.join(settings.MEDIA_URL , path)
+			tmp_file = os.path.join(settings.MEDIA_ROOT , path)
+
+			prediction = return_prediction(tmp_file)
+			
+			return render(request, 'samplexray/anonresult.html', {'xraytitle' : xrayTitle, 'xrayimgurl' : display_path, 'prediction' : prediction, 'anomaly_indices' : ANOMALY_INDICES})
 	else:
 		form = XrayForm()
-	return render(request, 'samplexray/upload.html', {'form' : form})
+	return render(request, 'samplexray/anonupload.html', {'form' : form})
 
 
 @login_required(login_url='/samplexray/login/')
@@ -110,30 +129,14 @@ def predict(request, user_id, xray_id):
 
 	xraysampleobj = get_object_or_404(XRaySample, pk=xray_id)
 	if request.user.id == xraysampleobj.userperson.id:
-		cwd = os.getcwd()
-		path = os.path.join(cwd + "\\Gestures_CNN_4_fine_tuned_mulltilabel.h5")
-		tb._SYMBOLIC_SCOPE.value = True
-		xray_classifier_model = tf.keras.models.load_model(path, compile=False)
+		prediction = return_prediction(os.path.join(CURRENT_PATH + xraysampleobj.image.url))
 
-		loaded_image = image.load_img(os.path.join(cwd + xraysampleobj.image.url), target_size=(224, 224), color_mode='rgb')
-		img_tensor = image.img_to_array(loaded_image)[:,:,:3]
-		img_tensor = np.expand_dims(img_tensor, axis=0)
-		img_tensor /= 255.
-		prediction = xray_classifier_model.predict(img_tensor)
-
-		anomaly_indices = {0 : 'cool', 1 : 'fist', 2 : 'ok', 3 : 'stop', 4 : 'yo'}
-
-		predict = np.argmax(prediction)
-		gestureclass = anomaly_indices[predict]
-		return render(request, 'samplexray/anonresult.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : anomaly_indices})
+		return render(request, 'samplexray/result.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : ANOMALY_INDICES})
 	else :
 		return HttpResponse("Un-Authorized BAD REQUEST")
 
+"""
 def anonpredict(request, xray_id):
-	"""
-		AnonymousUser is User 1
-	"""
-	#anonuser = get_object_or_404(User, pk=1)
 
 	xraysampleobj = get_object_or_404(XRaySample, pk=xray_id)
 	if xraysampleobj.userperson.id == 1 or request.user.id == xraysampleobj.userperson.id:
@@ -155,3 +158,4 @@ def anonpredict(request, xray_id):
 		return render(request, 'samplexray/anonresult.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : anomaly_indices})
 	else :
 		return HttpResponse("Un-Authorized BAD REQUEST")
+"""

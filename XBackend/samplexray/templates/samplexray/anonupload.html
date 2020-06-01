@@ -13,8 +13,8 @@
     <title>Submit XRay Image</title>
 </head>
 <body>
-  <a class='btn btn-primary' href="{% url 'samplexray:logout' %}">Logout</a>
-  <a class='btn btn-primary' href="{% url 'samplexray:profile' user.id %}">Go Back</a>
+  <a class='btn btn-primary' href="{% url 'samplexray:login' %}">Login</a>
+  <a class='btn btn-primary' href="{% url 'samplexray:signup' %}">SignUp</a>
   <h1>Submit XRay Image</h1>
     <form method = "post" enctype="multipart/form-data">
         {% csrf_token %}
