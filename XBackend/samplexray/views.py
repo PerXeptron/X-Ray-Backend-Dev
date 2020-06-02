@@ -97,9 +97,16 @@ def xrayupload(request, user_id):
 				xrayImage = form.cleaned_data['image']
 				xrayUser = user
 				xrayDate_posted = timezone.now()
-				newxray = XRaySample(title = xrayTitle, date_posted = xrayDate_posted, userperson = xrayUser, image = xrayImage)
+
+				newxray = XRaySample(title = xrayTitle, date_posted = xrayDate_posted, userperson = xrayUser, image = xrayImage,)
 				newxray.save()
-				return HttpResponseRedirect(reverse('samplexray:predict', args=(user.id, newxray.id,)))
+
+				disease_preds = return_prediction(os.path.join(CURRENT_PATH + newxray.image.url))
+				newxray.cool, newxray.fist, newxray.ok, newxray.stop, newxray.yo = disease_preds[0]
+				newxray.save()
+				
+				return render(request, 'samplexray/result.html', {'xrayobj' : newxray, 'prediction' : disease_preds, 'anomaly_indices' : ANOMALY_INDICES})
+				#return HttpResponseRedirect(reverse('samplexray:predict', args=(user.id, newxray.id,)))
 		else:
 			form = XrayForm()
 
@@ -123,7 +130,7 @@ def xrayanonupload(request):
 		form = XrayForm()
 	return render(request, 'samplexray/anonupload.html', {'form' : form})
 
-
+"""
 @login_required(login_url='/samplexray/login/')
 def predict(request, user_id, xray_id):
 
@@ -134,6 +141,8 @@ def predict(request, user_id, xray_id):
 		return render(request, 'samplexray/result.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : ANOMALY_INDICES})
 	else :
 		return HttpResponse("Un-Authorized BAD REQUEST")
+"""
+
 
 """
 def anonpredict(request, xray_id):

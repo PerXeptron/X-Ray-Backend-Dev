@@ -12,6 +12,20 @@ class XRaySample(models.Model):
 	image = models.ImageField(upload_to='images/', null = False, blank = False)
 	date_posted = models.DateTimeField(auto_now_add = True, verbose_name = "date posted")
 	userperson = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+
+	"""
+	cardiomegaly = models.FloatField(default = 0.0)
+	edema = models.FloatField(default = 0.0)
+	consolidation = models.FloatField(default = 0.0)
+	atelectasis = models.FloatField(default = 0.0)
+	pleural_effusion = models.FloatField(default = 0.0)
+	"""
+
+	cool = models.FloatField(default = 0.0)
+	fist = models.FloatField(default = 0.0)
+	ok = models.FloatField(default = 0.0)
+	stop = models.FloatField(default = 0.0)
+	yo = models.FloatField(default = 0.0)
 	#"Cardiomegaly", "Edema", "Consolidation", "Atelectasis", "Pleural Effusion"
 	def __str__(self):
 		return self.title
