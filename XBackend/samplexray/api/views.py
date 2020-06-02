@@ -29,44 +29,43 @@ def registration_view(request):
             data = serializer.errors
         return Response(data)
 
-@api_view(['GET',])
+@api_view(['POST',])
 @permission_classes((IsAuthenticated,))
-def api_detail_user_view(request, user_id):
+def api_detail_user_view(request):
+    if request.method == "POST":
+        logged_in_user = request.user
+        try :
+            user = User.objects.get(pk=request.data.get('user_id'))
+        except User.DoesNotExist :
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    logged_in_user = request.user
-    try :
-        user = User.objects.get(pk=user_id)
-    except User.DoesNotExist :
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        if logged_in_user != user :
+            return Response({'response' : "You don't have permission to view this."})
 
-    if logged_in_user != user :
-        return Response({'response' : "You don't have permission to view this."})
+        user_pastxray_list = user.xraysample_set.all().order_by('-date_posted')
+        data = {}
+        data['username'] = user.username
+        data['pastxrays'] = [xray_sample.id for xray_sample in user_pastxray_list]
 
-    user_pastxray_list = user.xraysample_set.all().order_by('-date_posted')
-    data = {}
-    data['username'] = user.username
-    data['pastxrays'] = [xray_sample.id for xray_sample in user_pastxray_list]
-
-    if request.method == "GET":
         return Response(data)
 
 
 
-@api_view(['GET', ])
+@api_view(['POST', ])
 @permission_classes((IsAuthenticated,))
-def api_detail_xray_view(request, xray_id):
-
-    try :
-        xray_sample = XRaySample.objects.get(pk=xray_id)
-    except XRaySample.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    user = request.user
+def api_detail_xray_view(request):
     
-    if xray_sample.userperson != user :
-        return Response({'response' : "You don't have permission to view this."})
+    if request.method == "POST":
+        try :
+            xray_sample = XRaySample.objects.get(pk=request.data.get('xray_id'))
+        except XRaySample.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == "GET":
+        user = request.user
+        
+        if xray_sample.userperson != user :
+            return Response({'response' : "You don't have permission to view this."})
+
         serializer = XRaySampleSerializer(xray_sample)
         return Response(serializer.data)
 

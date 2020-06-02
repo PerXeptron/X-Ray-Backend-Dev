@@ -12,8 +12,8 @@ from samplexray.api.views import (
 app_name = 'samplexray'
 
 urlpatterns = [
-    path('xray/<int:xray_id>/', api_detail_xray_view, name='api-xraydetail'),
-    path('user/<int:user_id>/', api_detail_user_view, name='api-userdetail'),
+    path('xray/', api_detail_xray_view, name='api-xraydetail'),
+    path('user/', api_detail_user_view, name='api-userdetail'),
     path('login/', obtain_auth_token, name='api-login'),
     path('signup/', registration_view, name='api-signup'),
     path('upload/', api_upload_xray_view, name='api-upload'),
