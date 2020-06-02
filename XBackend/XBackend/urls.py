@@ -4,8 +4,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('chexray/', include('samplexray.urls')),
     path('admin/', admin.site.urls),
+    path('chexray/', include('samplexray.urls')),
+
+    #REST_FRAMEWORK_URLS
+    path('api/chexray/', include('samplexray.api.urls', 'samplexray-api')),
 ]
 
 if settings.DEBUG:
