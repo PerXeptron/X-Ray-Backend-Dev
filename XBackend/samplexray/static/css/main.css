@@ -1,0 +1,147 @@
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 900;
+    src: local('Open Sans'), local('OpenSans'), url('http://themes.googleusercontent.com/static/fonts/opensans/v5/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff') format('woff');
+  }
+  body{
+    font-family: "Open Sans";
+    font-size: 18px;
+    color: black;
+    /*background-image: url("/static/images/background.jpeg");*/
+    background-position: bottom;
+  }
+  
+  a:link {
+    color: blue;
+  }
+  
+  a:hover {
+    color: tomato;
+  }
+  
+  input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 2px solid lightblue;
+    box-sizing: border-box;
+    color: black;
+    font-size : 18px;
+    font-family: "Open Sans";
+  }
+  
+  input[type=text]:focus {
+    background-color: lightblue;
+  }
+  
+  input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 2px solid lightblue;
+    box-sizing: border-box;
+    color: black;
+  }
+  
+  
+  textarea {
+    width: 100%;
+    height: 300px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid lightblue;
+    border-radius: 10px;
+    background-color: #f8f8f8;
+    resize: none;
+    color: black;
+    font-size : 16px;
+    font-family: "Open Sans";
+  }
+  
+  input[type=submit] {
+    background-color: white; /* Green */
+    border: 1px solid tomato;
+    border-radius: 5px;
+    color: black;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-family: "Open Sans";
+    font-size: 14px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+  
+  input[type=submit]:hover{
+    background-color: tomato;
+    color: white;
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 100px;
+    margin-right: 100px;
+  }
+  
+  th, td{
+    font-family: "Open Sans";
+    font-size: 18px;
+    color: black;
+    padding: 6px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  h1 {
+    font-family:"Open Sans";
+    color: black;
+    text-align: center;
+    font-size: 42px;
+  }
+  
+  h3 {
+    font-family: "Open Sans";
+    color: black;
+    text-align: center;
+    font-size: 22px;
+  }
+  
+  h4 {
+    font-family: "Open Sans";
+    color : black;
+    text-align: center;
+    font-size: 18px;
+  }
+  
+  p {
+    font-family: "Open Sans";
+    font-size: 18px;
+    display: inline-block;
+  }
+  
+  .btn-primary {
+    background-color: white; /* Green */
+    border: 1px solid green;
+    border-radius: 5px;
+    color: black;
+    padding: 3px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-family: "Open Sans";
+    font-size: 14px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover{
+    background-color: green;
+    color: white;
+  }

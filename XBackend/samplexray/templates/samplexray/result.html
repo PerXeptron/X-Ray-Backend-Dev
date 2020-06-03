@@ -1,0 +1,33 @@
+{% extends 'samplexray/base.html' %}
+{% block content %}
+  <style>
+    .btn-primary{
+        padding: 3px 15px;
+        border: 1px solid green;
+    }
+    img {
+        padding: 5px;
+        width: 300px;
+    }
+    .displayresult {
+        display : block;
+    }
+  </style>
+<head>
+    <meta charset="UTF-8">
+    <title>CheXRay Result</title>
+    <a class='btn btn-primary' href="{% url 'samplexray:logout' %}">Logout</a>
+    <a class='btn btn-primary' href="{% url 'samplexray:profile' user.id %}">Go Back</a>
+    <a class='btn btn-primary' href="{% url 'samplexray:upload' user.id %}">Upload Again</a>
+    <h1>Thanks for using PerXeptron CheXRay !</h1>
+    <h4>Here, are your results :</h4><br>
+
+    <div class  = "displayresult">
+        <h2>{{ xrayobj.title }}</h2>
+        <img class="img-responsive" src = "{{ xrayobj.image.url }}"/>
+        <h3>Predictions :</h3>
+        <h3>{{ anomaly_indices }}</h3>
+        <h3>{{ prediction }}</h3>
+    </div>
+<head>
+{% endblock %}
