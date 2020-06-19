@@ -20,13 +20,14 @@ from keras.models import load_model
 from keras.preprocessing import image
 import keras.backend.tensorflow_backend as tb
 import tensorflow as tf
+from keras.applications.densenet import preprocess_input
 import h5py
 import numpy as np
 import os
 
 CURRENT_PATH = os.getcwd()
-MODEL_PATH = os.path.join(CURRENT_PATH + "/Gestures_CNN_4_fine_tuned_mulltilabel.h5")
-ANOMALY_INDICES = {0 : 'cool', 1 : 'fist', 2 : 'ok', 3 : 'stop', 4 : 'yo'}
+MODEL_PATH = os.path.join(CURRENT_PATH + "/models/densenet121-keras-3.h5")
+ANOMALY_INDICES = {0 : 'Atelectasis', 1 : 'Cardiomegaly', 2 : 'Consolidation', 3 : 'Edema', 4 : 'Pleural Effusion'}
 
 def index(request):
     return render(request, 'samplexray/index.html')
@@ -65,13 +66,19 @@ def logout(request):
 def return_prediction(file_path):
 	tb._SYMBOLIC_SCOPE.value = True
 	xray_classifier_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-
-	loaded_image = image.load_img(file_path, target_size=(224, 224), color_mode='rgb')
+	"""
+	loaded_image = image.load_img(file_path, target_size=(224, 224))
 	img_tensor = image.img_to_array(loaded_image)[:,:,:3]
 	img_tensor = np.expand_dims(img_tensor, axis=0)
-	img_tensor /= 255.
-	prediction = xray_classifier_model.predict(img_tensor)
-
+	img_tensor = imagenet_utils.preprocess_input(img_tensor)
+	"""
+	img = image.load_img(file_path, target_size=(224, 224))
+	x = image.img_to_array(img).astype('float32')
+	x = np.expand_dims(x, axis=0)
+	x = preprocess_input(x)
+	
+	prediction = xray_classifier_model.predict(x)
+	print(prediction)
 	return prediction
 
 
@@ -102,7 +109,8 @@ def xrayupload(request, user_id):
 				newxray.save()
 
 				disease_preds = return_prediction(os.path.join(CURRENT_PATH + newxray.image.url))
-				newxray.cool, newxray.fist, newxray.ok, newxray.stop, newxray.yo = disease_preds[0]
+				#newxray.cool, newxray.fist, newxray.ok, newxray.stop, newxray.yo = disease_preds[0]
+				newxray.atelectasis, newxray.cardiomegaly, newxray.consolidation, newxray.edema, newxray.pleural_effusion = disease_preds[0]
 				newxray.save()
 				
 				return render(request, 'samplexray/result.html', {'xrayobj' : newxray, 'prediction' : disease_preds, 'anomaly_indices' : ANOMALY_INDICES})
