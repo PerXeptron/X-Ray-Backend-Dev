@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 class XRaySampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = XRaySample
-        fields = ['id', 'title', 'image', 'date_posted', 'userperson', 'cool', 'fist', 'ok', 'stop', 'yo']
+        fields = ['id', 'title', 'image', 'date_posted', 'userperson', 
+            'atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'pleural_effusion']
 
 class RegistrationSerializer(serializers.ModelSerializer):
     
