@@ -16,7 +16,7 @@ from .forms import XrayForm
 from .models import XRaySample
 from .dictionary import Dictionary
 
-from keras.models import load_model
+from keras.models import model_from_json
 from keras.preprocessing import image
 import keras.backend.tensorflow_backend as tb
 import tensorflow as tf
@@ -28,6 +28,7 @@ import os
 CURRENT_PATH = os.getcwd()
 MODEL_PATH = os.path.join(CURRENT_PATH + "/models/densenet121-keras-3.h5")
 ANOMALY_INDICES = {0 : 'Atelectasis', 1 : 'Cardiomegaly', 2 : 'Consolidation', 3 : 'Edema', 4 : 'Pleural Effusion'}
+xray_classifier_model = None
 
 def index(request):
     return render(request, 'samplexray/index.html')
@@ -63,15 +64,26 @@ def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('samplexray:index'))
 
+
+def load_densenet_model():
+	json_file = open(os.path.join(CURRENT_PATH + "/models/densenet121.json"), 'r')
+	loaded_model_json = json_file.read()
+	json_file.close()
+	loaded_model = model_from_json(loaded_model_json)
+	# load weights into new model
+	loaded_model.load_weights(os.path.join(CURRENT_PATH + "/weights/densenet121.h5"))
+	print("Loaded model from disk")
+	return loaded_model
+
+
+
 def return_prediction(file_path):
+	global xray_classifier_model
+
 	tb._SYMBOLIC_SCOPE.value = True
-	xray_classifier_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-	"""
-	loaded_image = image.load_img(file_path, target_size=(224, 224))
-	img_tensor = image.img_to_array(loaded_image)[:,:,:3]
-	img_tensor = np.expand_dims(img_tensor, axis=0)
-	img_tensor = imagenet_utils.preprocess_input(img_tensor)
-	"""
+	if xray_classifier_model is None : 
+		xray_classifier_model = load_densenet_model()
+
 	img = image.load_img(file_path, target_size=(224, 224))
 	x = image.img_to_array(img).astype('float32')
 	x = np.expand_dims(x, axis=0)
