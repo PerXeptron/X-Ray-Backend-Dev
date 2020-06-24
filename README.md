@@ -28,6 +28,6 @@ This contains **Django REST FRAMEWORK** :sleeping_bed: code for the Backend of t
 **(The Open-API Endpoint)**
 
 
-Notes/Disclaimers : 
+## Notes/Disclaimers : 
 
-* The Django Templates work, but they look pretty bad since, I just made those for testing purposes. No Worries :)
+* The Django Templates work, but they look pretty bad since, I made those just for the purpose of testing. No Worries  :stuck_out_tongue: 
