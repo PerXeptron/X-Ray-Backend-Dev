@@ -2,6 +2,8 @@
 
 This contains **Django REST FRAMEWORK** :sleeping_bed: code for the Backend of the **X-Ray Anomaly Detection Cross-Platform App**.
 
+[![Generic badge](https://img.shields.io/badge/Django-RESTFRAMEWORK-red.svg)](https://shields.io/)
+
 ## API Endpoints implemented (Links given, to the detailed documentation) :
 
 1. ['/api/chexray/signup/'](#sign-up) : Registers a new user with given *username* and *password*.
