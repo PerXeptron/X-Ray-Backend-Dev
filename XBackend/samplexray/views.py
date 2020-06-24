@@ -66,6 +66,7 @@ def logout(request):
 
 
 def load_densenet_model():
+	global xray_classifier_model
 	json_file = open(os.path.join(CURRENT_PATH + "/models/densenet121.json"), 'r')
 	loaded_model_json = json_file.read()
 	json_file.close()
@@ -73,7 +74,7 @@ def load_densenet_model():
 	# load weights into new model
 	loaded_model.load_weights(os.path.join(CURRENT_PATH + "/weights/densenet121.h5"))
 	print("Loaded model from disk")
-	return loaded_model
+	xray_classifier_model = loaded_model
 
 
 
@@ -82,7 +83,7 @@ def return_prediction(file_path):
 
 	tb._SYMBOLIC_SCOPE.value = True
 	if xray_classifier_model is None : 
-		xray_classifier_model = load_densenet_model()
+		load_densenet_model()
 
 	img = image.load_img(file_path, target_size=(224, 224))
 	x = image.img_to_array(img).astype('float32')
