@@ -1,17 +1,33 @@
-# X Ray Backend Dev
+# X-Ray Anomaly Detection Backend REST FRAMEWORK
 
-This contains Django and REST FRAMEWORK code for the Backend of the X-Ray Anomaly Detection App.
+This contains **Django REST FRAMEWORK** :sleeping_bed: code for the Backend of the **X-Ray Anomaly Detection Cross-Platform App**.
 
-### API Endpoints implemented :
+## API Endpoints implemented (Links given, to the detailed documentation) :
 
-1. 'xray/' : Returns details on the POSTed **x-ray id**, if the correct **User** is presently signed in.
-2. 'user/' : Returns the **username** and the **list of past xray-ids** of the POSTed **user-id** if that **User** is presently signed in.
-3. 'login/' : Returns **Auth Token** for the *Username* and *Password* POSTed.
-4. 'signup/' : Registers a new user with given *username* and *password*.
-5. 'upload/' : Uploads the given *image* and *title* to the current **user profile** and also returns the *predicted outputs.*
-6. 'anonupload/' : Uploads the given *image* and *title* and returns the **predicted output.**
+1. ['/api/chexray/signup/'](#sign-up) : Registers a new user with given *username* and *password*.
+2. ['/api/chexray/login/'](#login) : Returns **Auth-Token** for the *Username* and *Password* POSTed.
+3. ['/api/chexray/user/'](#user-details) : Returns the **user-id**, **username** and the **list of past xray-ids** of the presently logged in user.
+4. ['/api/chexray/xray/'](#xray-details) : Returns details on the POSTed **x-ray id**, if the correct **User** is presently signed in.
+5. ['/api/chexray/upload/'](#authenticated-user-upload) : Uploads the given *image* and *title* to the current **user profile** and also returns the *predicted outputs.*
+6. ['/api/chexray/anonupload/'](#anonymous-upload) : Uploads the given *image* and *title* and returns the **predicted output** anonymously.
+
+## Detailed API Documentation :
+
+### Sign-Up
+
+### Login
+
+### User Details
+
+### XRay Details
+
+### Authenticated User Upload
+
+### Anonymous Upload 
+
+**(The Open-API Endpoint)**
+
 
 Notes/Disclaimers : 
 
-* I'm lazy enough, not to write the entire API documentation :p I'll do it once this comes into application.
 * The Django Templates work, but they look pretty bad since, I just made those for testing purposes. No Worries :)
