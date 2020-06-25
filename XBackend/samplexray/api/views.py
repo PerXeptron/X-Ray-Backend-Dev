@@ -6,10 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth.models import User
+from django.core.files import File
 
 from samplexray.models import XRaySample
 from samplexray.api.serializers import XRaySampleSerializer, RegistrationSerializer
-from samplexray.views import return_prediction
+from samplexray.views import return_prediction, generate_heatmap
 
 import os
 
@@ -30,29 +31,6 @@ def registration_view(request):
             data = serializer.errors
         return Response(data)
 
-###This function below gives info for a particular user
-###But right now I don't see any point of its existence.
-"""
-@api_view(['POST',])
-@permission_classes((IsAuthenticated,))
-def api_detail_user_view(request):
-    if request.method == "POST":
-        logged_in_user = request.user
-        try :
-            user = User.objects.get(pk=request.data.get('user_id'))
-        except User.DoesNotExist :
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        if logged_in_user != user :
-            return Response({'response' : "You don't have permission to view this."})
-
-        user_pastxray_list = user.xraysample_set.all().order_by('-date_posted')
-        data = {}
-        data['username'] = user.username
-        data['pastxrays'] = [xray_sample.id for xray_sample in user_pastxray_list]
-
-        return Response(data)
-        """
 
 #Login method
 from rest_framework import parsers, renderers
@@ -168,12 +146,21 @@ def api_upload_xray_view(request):
         serializer = XRaySampleSerializer(xray_post, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            prediction_list = return_prediction(os.path.join(CURRENT_PATH + xray_post.image.url))
-            #xray_post.cool, xray_post.fist, xray_post.ok, xray_post.stop, xray_post.yo = prediction_list[0]
+            input_file_path = os.path.join(CURRENT_PATH + xray_post.image.url)
+            prediction_list = return_prediction(input_file_path)
+            
+            output_file_path = os.path.join(CURRENT_PATH + "/media/heatmaps/" + "heatmap_" + xray_post.image.name.split('/')[-1])
+            generate_heatmap(input_file_path, output_file_path)
+
+            f = File(open(output_file_path,'rb'))
+            xray_post.heatmap_image.save("heatmap_" + xray_post.image.name.split('/')[-1], f.read())
+
             xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list[0]
             xray_post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 @api_view(['POST',])
 def api_anonupload_xray_view(request):
@@ -186,8 +173,15 @@ def api_anonupload_xray_view(request):
         serializer = XRaySampleSerializer(xray_post, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            prediction_list = return_prediction(os.path.join(CURRENT_PATH + xray_post.image.url))
-            #xray_post.cool, xray_post.fist, xray_post.ok, xray_post.stop, xray_post.yo = prediction_list[0]
+            input_file_path = os.path.join(CURRENT_PATH + xray_post.image.url)
+            prediction_list = return_prediction(input_file_path)
+
+            output_file_path = os.path.join(CURRENT_PATH + "/media/heatmaps/" + "heatmap_" + xray_post.image.name.split('/')[-1])
+            generate_heatmap(input_file_path, output_file_path)
+
+            f = File(open(output_file_path,'rb'))
+            xray_post.heatmap_image.save("heatmap_" + xray_post.image.name.split('/')[-1], f)
+            
             xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list[0]
             xray_post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

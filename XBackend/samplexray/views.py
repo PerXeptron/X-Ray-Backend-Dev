@@ -25,10 +25,17 @@ import h5py
 import numpy as np
 import os
 
+from .heatmap_utils import load_torch_model
+from .heatmap_utils.generate_heatmap import HeatmapGenerator
+
 CURRENT_PATH = os.getcwd()
 MODEL_PATH = os.path.join(CURRENT_PATH + "/models/densenet121-keras-3.h5")
 ANOMALY_INDICES = {0 : 'Atelectasis', 1 : 'Cardiomegaly', 2 : 'Consolidation', 3 : 'Edema', 4 : 'Pleural Effusion'}
 xray_classifier_model = None
+pytorch_heatmap_model = None
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 def index(request):
     return render(request, 'samplexray/index.html')
@@ -65,15 +72,34 @@ def logout(request):
     return HttpResponseRedirect(reverse('samplexray:index'))
 
 
+def load_pytorch_model():
+	global pytorch_heatmap_model
+	pytorch_heatmap_model = load_torch_model.build_model()
+	print("PyTorch TarBall Loaded :p")
+
+
+def generate_heatmap(input_file_path, output_file_path):
+	global pytorch_heatmap_model	
+
+	if pytorch_heatmap_model is None :
+		print("WARNING : PYTORCH MODEL REQUIRED AGAIN MEMORY LEAKAGE !")
+		pytorch_heatmap_model = load_torch_model.build_model()
+
+	h = HeatmapGenerator(pytorch_heatmap_model)
+	h.generate(input_file_path, output_file_path)
+	
+
+
 def load_densenet_model():
 	global xray_classifier_model
+	tb._SYMBOLIC_SCOPE.value = True
 	json_file = open(os.path.join(CURRENT_PATH + "/models/densenet121.json"), 'r')
 	loaded_model_json = json_file.read()
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
 	loaded_model.load_weights(os.path.join(CURRENT_PATH + "/weights/densenet121.h5"))
-	print("Loaded model from disk")
+	print("Keras HDF5 loaded")
 	xray_classifier_model = loaded_model
 
 
@@ -150,42 +176,3 @@ def xrayanonupload(request):
 	else:
 		form = XrayForm()
 	return render(request, 'samplexray/anonupload.html', {'form' : form})
-
-"""
-@login_required(login_url='/samplexray/login/')
-def predict(request, user_id, xray_id):
-
-	xraysampleobj = get_object_or_404(XRaySample, pk=xray_id)
-	if request.user.id == xraysampleobj.userperson.id:
-		prediction = return_prediction(os.path.join(CURRENT_PATH + xraysampleobj.image.url))
-
-		return render(request, 'samplexray/result.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : ANOMALY_INDICES})
-	else :
-		return HttpResponse("Un-Authorized BAD REQUEST")
-"""
-
-
-"""
-def anonpredict(request, xray_id):
-
-	xraysampleobj = get_object_or_404(XRaySample, pk=xray_id)
-	if xraysampleobj.userperson.id == 1 or request.user.id == xraysampleobj.userperson.id:
-		cwd = os.getcwd()
-		path = os.path.join(cwd + "\\Gestures_CNN_4_fine_tuned_mulltilabel.h5")
-		tb._SYMBOLIC_SCOPE.value = True
-		xray_classifier_model = tf.keras.models.load_model(path, compile=False)
-
-		loaded_image = image.load_img(os.path.join(cwd + xraysampleobj.image.url), target_size=(224, 224), color_mode='rgb')
-		img_tensor = image.img_to_array(loaded_image)[:,:,:3]
-		img_tensor = np.expand_dims(img_tensor, axis=0)
-		img_tensor /= 255.
-		prediction = xray_classifier_model.predict(img_tensor)
-
-		anomaly_indices = {0 : 'cool', 1 : 'fist', 2 : 'ok', 3 : 'stop', 4 : 'yo'}
-
-		predict = np.argmax(prediction)
-		gestureclass = anomaly_indices[predict]
-		return render(request, 'samplexray/anonresult.html', {'xrayobj' : xraysampleobj, 'prediction' : prediction, 'anomaly_indices' : anomaly_indices})
-	else :
-		return HttpResponse("Un-Authorized BAD REQUEST")
-"""
