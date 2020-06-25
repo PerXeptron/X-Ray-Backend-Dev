@@ -25,7 +25,7 @@ SECRET_KEY = '$if7hiboequm=dt+$h%vr5@)vmdo%vpu@8c_8g_$4jvif((q-f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -65,7 +65,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
+    'https://perxeptron.github.io',
     'http://localhost:4200',
+    'http://localhost:3000',
 ]
 
 ROOT_URLCONF = 'XBackend.urls'

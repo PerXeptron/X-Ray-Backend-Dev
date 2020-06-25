@@ -19,6 +19,7 @@ class XRaySample(models.Model):
 	image = models.ImageField(upload_to='images/', null = False, blank = False)
 	date_posted = models.DateTimeField(auto_now_add = True, verbose_name = "date posted")
 	userperson = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+	heatmap_image = models.ImageField(upload_to='heatmaps/', null = False, blank = True)
 
 	
 	cardiomegaly = models.FloatField(default = 0.0)
