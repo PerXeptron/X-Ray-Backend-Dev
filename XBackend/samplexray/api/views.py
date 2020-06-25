@@ -153,9 +153,9 @@ def api_upload_xray_view(request):
             generate_heatmap(input_file_path, output_file_path)
 
             f = File(open(output_file_path,'rb'))
-            xray_post.heatmap_image.save("heatmap_" + xray_post.image.name.split('/')[-1], f.read())
+            xray_post.heatmap_image.save("heatmap_" + xray_post.image.name.split('/')[-1], f)
 
-            xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list[0]
+            xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list
             xray_post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -182,7 +182,7 @@ def api_anonupload_xray_view(request):
             f = File(open(output_file_path,'rb'))
             xray_post.heatmap_image.save("heatmap_" + xray_post.image.name.split('/')[-1], f)
             
-            xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list[0]
+            xray_post.atelectasis, xray_post.cardiomegaly, xray_post.consolidation, xray_post.edema, xray_post.pleural_effusion = prediction_list
             xray_post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

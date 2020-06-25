@@ -28,14 +28,25 @@ import os
 from .heatmap_utils import load_torch_model
 from .heatmap_utils.generate_heatmap import HeatmapGenerator
 
-CURRENT_PATH = os.getcwd()
-MODEL_PATH = os.path.join(CURRENT_PATH + "/models/densenet121-keras-3.h5")
-ANOMALY_INDICES = {0 : 'Atelectasis', 1 : 'Cardiomegaly', 2 : 'Consolidation', 3 : 'Edema', 4 : 'Pleural Effusion'}
-xray_classifier_model = None
-pytorch_heatmap_model = None
+from .ensemble_utils.ensemble import Ensemble
 
+CURRENT_PATH = os.getcwd()
+ANOMALY_INDICES = {0 : 'Atelectasis', 1 : 'Cardiomegaly', 2 : 'Consolidation', 3 : 'Edema', 4 : 'Pleural Effusion'}
+ENSEMBLE_OBJECT_GLOBAL = None
+PYTORCH_HEATMAP_MODEL = None
+
+#SET TENSORFLOW ENVIRONMENT TO OPTIMAL
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
+tb._SYMBOLIC_SCOPE.value = True
+
+
+"""
+-------------------------
+AUTHENTICATION AREA ---->
+-------------------------
+"""
+
 
 def index(request):
     return render(request, 'samplexray/index.html')
@@ -72,53 +83,47 @@ def logout(request):
     return HttpResponseRedirect(reverse('samplexray:index'))
 
 
+"""
+---------------------------------------
+MODEL LOADING AND PREDICTION AREA ---->
+---------------------------------------
+"""
+
+
 def load_pytorch_model():
-	global pytorch_heatmap_model
-	pytorch_heatmap_model = load_torch_model.build_model()
+	global PYTORCH_HEATMAP_MODEL
+	PYTORCH_HEATMAP_MODEL = load_torch_model.build_model()
 	print("PyTorch TarBall Loaded :p")
 
 
 def generate_heatmap(input_file_path, output_file_path):
-	global pytorch_heatmap_model	
+	global PYTORCH_HEATMAP_MODEL	
 
-	if pytorch_heatmap_model is None :
+	if PYTORCH_HEATMAP_MODEL is None :
 		print("WARNING : PYTORCH MODEL REQUIRED AGAIN MEMORY LEAKAGE !")
-		pytorch_heatmap_model = load_torch_model.build_model()
+		PYTORCH_HEATMAP_MODEL = load_torch_model.build_model()
 
-	h = HeatmapGenerator(pytorch_heatmap_model)
+	h = HeatmapGenerator(PYTORCH_HEATMAP_MODEL)
 	h.generate(input_file_path, output_file_path)
-	
 
 
-def load_densenet_model():
-	global xray_classifier_model
-	tb._SYMBOLIC_SCOPE.value = True
-	json_file = open(os.path.join(CURRENT_PATH + "/models/densenet121.json"), 'r')
-	loaded_model_json = json_file.read()
-	json_file.close()
-	loaded_model = model_from_json(loaded_model_json)
-	# load weights into new model
-	loaded_model.load_weights(os.path.join(CURRENT_PATH + "/weights/densenet121.h5"))
-	print("Keras HDF5 loaded")
-	xray_classifier_model = loaded_model
-
-
+def load_ensemble_model():
+	global ENSEMBLE_OBJECT_GLOBAL
+	ENSEMBLE_OBJECT_GLOBAL = Ensemble()
+	ENSEMBLE_OBJECT_GLOBAL.build_models()
 
 def return_prediction(file_path):
-	global xray_classifier_model
+	global ENSEMBLE_OBJECT_GLOBAL
 
-	tb._SYMBOLIC_SCOPE.value = True
-	if xray_classifier_model is None : 
-		load_densenet_model()
+	if ENSEMBLE_OBJECT_GLOBAL is None :
+		ENSEMBLE_OBJECT_GLOBAL.build_models()
 
-	img = image.load_img(file_path, target_size=(224, 224))
-	x = image.img_to_array(img).astype('float32')
-	x = np.expand_dims(x, axis=0)
-	x = preprocess_input(x)
-	
-	prediction = xray_classifier_model.predict(x)
-	print(prediction)
-	return prediction
+	return ENSEMBLE_OBJECT_GLOBAL.get_predictions(file_path)
+
+
+"""
+DJANGO TEMPLATES AREA --->
+"""
 
 
 @login_required(login_url='/samplexray/login/')

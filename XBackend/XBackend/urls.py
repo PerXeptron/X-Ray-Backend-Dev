@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
-from samplexray.views import load_densenet_model, load_pytorch_model
+from samplexray.views import load_ensemble_model, load_pytorch_model
 
-load_densenet_model()
+load_ensemble_model()
 load_pytorch_model()
 
 urlpatterns = [
