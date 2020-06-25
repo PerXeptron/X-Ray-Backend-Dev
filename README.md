@@ -17,7 +17,62 @@ This contains **Django REST FRAMEWORK** :sleeping_bed: code for the Backend of t
 
 ### Sign-Up
 
+```ENDPOINT : '/api/chexray/signup/' | REQUEST TYPE : POST```
+
+Registers a new user with given *username* and *password*. ```All of the utilities in this project are written in function based views, with authenticated decorators and CSRF Tokens. ```
+
+```
+@api_view(['POST',])
+def registration_view(request):
+    if request.method == 'POST':
+        serializer = RegistrationSerializer(data=request.data)
+        data = {}
+        if serializer.is_valid():
+            user = serializer.save()
+            data['response'] = "Successfully Signed Up"
+            data['username'] = user.username
+            token = Token.objects.get(user=user).key
+            data['token'] = token
+        else:
+            data = serializer.errors
+        return Response(data)
+```
+
+So, this returns a ```success``` response, the ```username``` and the generated ```token``` in a JSON Response if the resgistration is successful.
+
+Two types of standard Django errors that can arise from this :
+```
+{
+  username : "A user with that username already exists"
+}
+```
+or
+```
+{
+  password : "Passwords Must Match"
+}
+```
+
 ### Login
+
+```ENDPOINT : '/api/chexray/login/' | REQUEST TYPE : POST```
+
+Returns **Auth-Token** for the correctly POSTed *Username* and *Password*. For the login part, I've **extended** the inherent Django ```rest_framework.authtoken.views.obtain_auth_token``` to build a ```CustomAuthToken``` **class based view**.
+
+Upon posting the **username** and **password** it'll return a JSON Response :
+```
+{
+  userid : <user_id>
+  username : <username>
+  token : <tokenkey>
+}
+```
+In case of errors :
+```
+{
+  non_field_errors : <error>
+}
+```
 
 ### User Details
 
